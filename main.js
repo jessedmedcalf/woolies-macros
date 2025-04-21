@@ -254,7 +254,7 @@ function renderVisualization(container, products, xField, yField, sizeField, fie
     dot.style.top = `${y}px`;
     dot.style.width = `${size}px`;
     dot.style.height = `${size}px`;
-    dot.title = prod.ProductName;
+
     // Add click to open Woolworths product link
     dot.onclick = (e) => {
       e.stopPropagation();
