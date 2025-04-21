@@ -1,0 +1,347 @@
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f4f4f9;
+  margin: 0;
+  padding: 0;
+}
+.content {
+  max-width: 900px;
+  margin: 36px auto 0 auto;
+  padding: 0 12px;
+}
+#app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+.logo-header {
+  width: 100%;
+  text-align: center;
+  padding: 28px 0 18px 0;
+  background: #fff;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.04);
+  margin-bottom: 18px;
+}
+.logo-title {
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+  font-size: 2.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #222;
+}
+.logo-accent {
+  color: #43a047;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+section {
+  background: white;
+  margin-top: 24px;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+#category-selector {
+  margin-bottom: 16px;
+}
+#category-search-container {
+  position: relative;
+  margin-bottom: 12px;
+  max-width: 400px;
+}
+#category-search {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 16px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  margin-bottom: 0;
+  box-sizing: border-box;
+}
+#product-keyword-search {
+  width: 100%;
+  max-width: 400px;
+  padding: 8px 12px;
+  font-size: 16px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  margin-top: 0;
+  box-sizing: border-box;
+}
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-top: none;
+  z-index: 10;
+  max-height: 220px;
+  overflow-y: auto;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  display: none;
+}
+.suggestion {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 15px;
+}
+.suggestion:hover, .suggestion.active {
+  background: #e0e0e0;
+}
+#axis-selectors {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.axis-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.axis-row label.axis-header {
+  font-weight: bold;
+  margin-right: 8px;
+  font-size: 18px;
+  transition: color 0.2s, background 0.2s;
+}
+.axis-row label.axis-header.reversed {
+  color: #fff;
+  background: #1976d2;
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+.axis-row select {
+  min-width: 140px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  font-size: 15px;
+}
+.axis-row button {
+  background: #f4f4f4;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  padding: 3px 10px;
+  cursor: pointer;
+  font-size: 17px;
+  transition: background 0.2s, border 0.2s;
+}
+.axis-row button.reversed {
+  background: #1976d2;
+  color: #fff;
+  border: 2px solid #1976d2;
+  font-weight: bold;
+}
+.axis-row button:hover {
+  background: #e0e0e0;
+  border-color: #888;
+}
+#dietary-toggles {
+  display: block;
+}
+#dietary-toggles label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1em;
+  white-space: normal;
+}
+#visualization {
+  min-height: 300px;
+  margin-top: 24px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px 0 rgba(60, 72, 90, 0.08), 0 1.5px 4px 0 rgba(60, 72, 90, 0.06);
+  padding: 32px 24px 24px 24px;
+  transition: box-shadow 0.2s;
+}
+.filters-row {
+  margin-bottom: 8px;
+
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  margin-bottom: 12px;
+  justify-content: flex-start;
+}
+.category-section {
+  background: #f8fafd;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px 0 rgba(60,72,90,0.04);
+  padding: 12px 10px 8px 10px;
+  flex: 0 1 32%;
+  margin: 0;
+}
+.axis-section {
+  background: #f8fafd;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px 0 rgba(60,72,90,0.04);
+  padding: 12px 10px 8px 10px;
+  flex: 1 1 52%;
+  min-width: 0;
+  font-size: 0.98em;
+  margin: 0;
+}
+
+.dietary-section {
+  background: #f8fafd;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px 0 rgba(60,72,90,0.04);
+  padding: 8px 6px 6px 6px;
+  flex: 0 1 16%;
+  font-size: 0.96em;
+  margin: 0;
+}
+
+.axis-section h2 {
+  display: none;
+}
+.search-input-container {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  margin-top: 10px;
+}
+#product-keyword-search {
+  width: 100%;
+  padding: 8px 36px 8px 12px;
+  font-size: 16px;
+  border: 1px solid #e0e3e8;
+  border-radius: 8px;
+  background: #f7fafd;
+  transition: border 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+#product-keyword-search:focus {
+  border-color: #5396e2;
+  box-shadow: 0 0 0 2px #dbefff;
+}
+.search-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #888;
+  display: flex;
+  align-items: center;
+  height: 18px;
+}
+#visualization-section {
+  margin-top: 24px;
+}
+
+@media (max-width: 900px) {
+  .filters-row {
+  margin-bottom: 8px;
+
+    flex-direction: column;
+    gap: 12px;
+  }
+  .category-section, .dietary-section {
+    padding: 14px 8px 10px 8px;
+    max-width: 100%;
+  }
+}
+.products-section {
+  background: #f8fafd;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px 0 rgba(60,72,90,0.05);
+  padding: 32px 32px 24px 32px;
+  margin-bottom: 32px;
+}
+.matrix-container {
+  position: relative;
+  width: 600px;
+  height: 600px;
+  margin: 0 auto;
+  background: #fafbfc;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+}
+.matrix-axes {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.matrix-x-axis, .matrix-y-axis {
+  position: absolute;
+  background: #aaa;
+}
+.matrix-x-axis {
+  height: 2px;
+  width: 100%;
+  top: 50%;
+  left: 0;
+}
+.matrix-y-axis {
+  width: 2px;
+  height: 100%;
+  left: 50%;
+  top: 0;
+}
+.matrix-label {
+  position: absolute;
+  background: rgba(255,255,255,0.9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  pointer-events: none;
+}
+.matrix-axis-header {
+  position: absolute;
+  font-size: 16px;
+  font-weight: bold;
+  background: none;
+  pointer-events: none;
+  color: #222;
+  transition: color 0.2s, background 0.2s;
+}
+.matrix-axis-header.reversed {
+  background: #1976d2;
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 10px;
+}
+.matrix-tick-label {
+  position: absolute;
+  font-size: 12px;
+  color: #555;
+  background: rgba(255,255,255,0.8);
+  padding: 1px 4px;
+  border-radius: 2px;
+  pointer-events: none;
+}
+.matrix-dot {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4caf50;
+  border: 2px solid #333;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.matrix-dot:hover {
+  transform: scale(1.2);
+  z-index: 2;
+  background: #2196f3;
+}
+.matrix-tooltip {
+  position: absolute;
+  background: #fff;
+  color: #222;
+  border: 1px solid #888;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+  display: none;
+}

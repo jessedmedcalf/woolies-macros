@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Woolworths Product Explorer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div class="logo-header"><span class="logo-title"><span class="logo-accent">Woolies</span> Macros</span></div>
+
+      
+    </header>
+    <div class="filters-row">
+      <section class="category-section" id="category-selector-section">
+        <h2>Select Category</h2>
+        <div id="category-search-container">
+          <input id="category-search" type="text" placeholder="Search categories..." autocomplete="off" />
+          <div id="category-suggestions" class="suggestions"></div>
+        </div>
+        <div id="category-selector"></div>
+      </section>
+      <section class="dietary-section" id="dietary-toggle-section">
+        <h2>Dietary Filters</h2>
+        <div id="dietary-toggles"></div>
+      </section>
+      <section class="axis-section">
+        <h2>Axis Selectors</h2>
+        <div id="axis-selectors">
+          <div class="axis-row">
+            <label for="x-axis-select" class="axis-header x">X Axis:</label>
+            <select id="x-axis-select"></select>
+            <button id="reverse-x" title="Reverse X Axis">&#8646;</button>
+          </div>
+          <div class="axis-row">
+            <label for="y-axis-select" class="axis-header y">Y Axis:</label>
+            <select id="y-axis-select"></select>
+            <button id="reverse-y" title="Reverse Y Axis">&#8646;</button>
+          </div>
+          <div class="axis-row">
+            <label for="size-axis-select" class="axis-header size">Size:</label>
+            <select id="size-axis-select"></select>
+            <button id="reverse-size" title="Reverse Size">&#8646;</button>
+          </div>
+        </div>
+        <div class="search-input-container">
+          <input id="product-keyword-search" type="text" placeholder="Search products..." />
+          <span class="search-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="9" cy="9" r="7" stroke="#888" stroke-width="2" />
+              <line x1="14.4142" y1="14" x2="18" y2="17.5858" stroke="#888" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </span>
+        </div>
+      </section>
+    </div>
+    <section id="visualization-section">
+      <div id="visualization"></div>
+      </div>
+      
+<div id="visualization"></div>
+    </section>
+  </div>
+  <script src="main.js"></script>
+</body>
+</html>

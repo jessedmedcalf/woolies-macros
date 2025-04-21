@@ -1,0 +1,101 @@
+# Woolworths Product & Nutrition Scraper - Project Context
+
+## 1. Objective
+
+The primary goal of this project is to develop a web scraper capable of extracting information for *every* product listed on www.woolworths.com.au. The key data points required for each product include standard details (name, price, brand, stockcode), detailed **nutritional information**, and associated **category information**. The final output should be structured for easy use in data analysis and visualization tools.
+
+## 2. Target Website
+
+*   **URL:** `https://www.woolworths.com.au`
+*   **Target Environment:** macOS (Python 3.x)
+
+## 3. Key Findings & API Endpoints
+
+Investigation using browser developer tools indicates the website loads data dynamically via internal APIs.
+
+**Known Endpoints:**
+
+1.  **Category Structure API:**
+    *   **URL:** `https://www.woolworths.com.au/apis/ui/PiesCategoriesWithSpecials`
+    *   **Method:** `GET`
+    *   **Purpose:** Fetches the complete category hierarchy (tree structure).
+    *   **Response:** JSON containing a nested list under the `"Categories"` key. Each node contains:
+        *   `"NodeId"`: Unique category identifier (pattern `1_XXXXXXX`). **This is the `categoryId` needed for fetching products.**
+        *   `"Description"`: Category name.
+        *   `"ParentNodeId"`: ID of the parent category (useful for hierarchy).
+        *   `"NodeLevel"`: Depth level in the category tree.
+        *   `"Children"`: Array of child nodes for recursive traversal.
+    *   **Action:** Call first to discover all category IDs and their hierarchy.
+
+2.  **Product Listing API (Per Category):**
+    *   **URL:** `https://www.woolworths.com.au/apis/ui/browse/category`
+    *   **Method:** `POST`
+    *   **Purpose:** Fetches a paginated list of products for a specific category ID.
+    *   **Required Payload:** JSON object including:
+        *   `categoryId`: The `"NodeId"` from the Category Structure API.
+        *   `pageNumber`: Page number (starts at 1).
+        *   `pageSize`: Number of products per page (e.g., 24 or 36).
+        *   (Include other observed static fields: `sortType`, `location`, `url`, `formatObject`, `categoryVersion`, etc., as found in initial investigation).
+    *   **Response:** JSON containing product data under `"Bundles"` -> `"Products"`.
+    *   **Pagination:** Increment `pageNumber` until an empty list of bundles/products is returned.
+
+**Nutritional Information Location:**
+
+*   Detailed nutritional information **IS included** within the response of the Product Listing API (`/apis/ui/browse/category`).
+*   Location: `product['AdditionalAttributes']['nutritionalinformation']`.
+*   **Format:** The value is a **JSON string**, requiring **double parsing**:
+    1. Parse the main API response JSON.
+    2. Extract the `nutritionalinformation` string value.
+    3. Parse this string value *again* as JSON to access the nutrient `Attributes` list.
+
+## 4. Required Data Fields for Output
+
+The final output (e.g., CSV) should be a flat table where each row is a product. Columns should include:
+
+*   `Stockcode` (Product unique ID)
+*   `ProductName` (`DisplayName` or `Name`)
+*   `Brand`
+*   `Price` (Current price)
+*   `CupString` (Unit price string, e.g., "$1.60 / 1L")
+*   `PackageSize` (e.g., "1L")
+*   `ProductURL` (Constructed or extracted if available)
+*   `ScrapedCategoryName` (Name of the category the product was scraped under)
+*   `ScrapedCategoryID` (`NodeId` of the category the product was scraped under)
+*   `ScrapedCategoryParentID` (`ParentNodeId` of the category)
+*   `ScrapedCategoryLevel` (`NodeLevel` of the category)
+*   **Parsed Nutritional Information (Flattened into columns):**
+    *   `ServingSize`
+    *   `ServingsPerPack`
+    *   `Energy_kJ_per_100g`
+    *   `Energy_kJ_per_Serve`
+    *   `Protein_g_per_100g`
+    *   `Protein_g_per_Serve`
+    *   `Fat_Total_g_per_100g`
+    *   `Fat_Total_g_per_Serve`
+    *   `Fat_Saturated_g_per_100g`
+    *   `Fat_Saturated_g_per_Serve`
+    *   `Carbohydrate_g_per_100g`
+    *   `Carbohydrate_g_per_Serve`
+    *   `Sugars_g_per_100g`
+    *   `Sugars_g_per_Serve`
+    *   `Sodium_mg_per_100g`
+    *   `Sodium_mg_per_Serve`
+    *   *(Include columns for other nutrients found, e.g., Calcium, Fibre, ensuring consistent naming)*
+
+## 5. Technical Stack Suggestion
+
+*   **Language:** Python 3.x
+*   **Libraries:**
+    *   `requests`: For HTTP requests.
+    *   `json`: For parsing JSON.
+    *   `time`: For delays (`time.sleep()`).
+    *   `pandas`: For data structuring and CSV output.
+    *   `logging`: (Recommended) For progress/error tracking.
+
+## 6. Potential Challenges
+
+*   **API Changes:** Woolworths may alter API endpoints, structures, or requirements.
+*   **Rate Limiting/IP Blocking:** Aggressive scraping *will* lead to blocks. Delays are essential.
+*   **Error Handling:** Needs to handle network errors, unexpected HTTP codes, JSON parsing errors, and missing data fields robustly.
+*   **Category Tree Traversal:** Logic must accurately parse the nested categories.
+*   **Scalability & Time:** Scraping all products will be time-consuming.

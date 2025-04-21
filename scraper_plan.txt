@@ -1,0 +1,125 @@
+# Woolworths Product & Nutrition Scraper - Development Plan (macOS)
+
+## 1. Introduction
+
+This plan details the steps to build the Woolworths product scraper on macOS. It focuses on retrieving all products, their nutritional details, and associated category information, outputting a structured dataset suitable for analysis and visualization.
+
+## 2. Phase 1: Setup & Environment (macOS)
+
+1.  **Create Project Directory:**
+    ```bash
+    mkdir woolies_scraper
+    cd woolies_scraper
+    ```
+2.  **Setup Virtual Environment:**
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
+3.  **Install Libraries:**
+    ```bash
+    pip install requests pandas
+    ```
+4.  **Create Files:**
+    *   Main script: `touch woolies_scraper.py`
+    *   Output directory: `mkdir output`
+
+## 3. Phase 2: Category Discovery Implementation
+
+1.  **Define `get_categories` Function:**
+    *   Goal: Fetch and parse the full category tree from `PiesCategoriesWithSpecials` API.
+    *   Output: List of dictionaries, each containing `'id'` (`NodeId`), `'name'` (`Description`), `'parent_id'` (`ParentNodeId`), and `'level'` (`NodeLevel`).
+2.  **Make GET Request:**
+    *   Use `requests.get()` for `https://www.woolworths.com.au/apis/ui/PiesCategoriesWithSpecials`.
+    *   Set `User-Agent` header.
+    *   Implement `try...except` for `requests.exceptions.RequestException`, `json.JSONDecodeError`. Check status code (`response.raise_for_status()`).
+3.  **Implement Recursive Parsing (`extract_recursive`):**
+    *   Helper function taking a category node and the master list.
+    *   **Criteria:** Identify nodes representing actual product categories (typically `NodeId` starting with `1_`).
+    *   If valid, append `{'id': node['NodeId'], 'name': node['Description'], 'parent_id': node['ParentNodeId'], 'level': node['NodeLevel']}` to the master list.
+    *   Recursively call for nodes in `"Children"` array.
+4.  **Call and Store:**
+    *   Execute `get_categories()` in the main script.
+    *   Store the result in `category_list`. Log the count found. Handle failure (`None` return).
+
+## 4. Phase 3: Product Scraping Implementation (Per Category)
+
+1.  **Initialize Data Storage:** Create an empty list `all_products_data = []` before the category loop.
+2.  **Iterate Through Categories:**
+    *   `for category in category_list:`
+    *   Extract `category_id = category['id']`, `category_name = category['name']`, `category_parent_id = category['parent_id']`, `category_level = category['level']`.
+    *   Log starting scrape for `category_name`.
+3.  **Implement Pagination Loop:**
+    *   Initialize `pageNumber = 1`.
+    *   Start `while True:` loop.
+4.  **Construct POST Payload:**
+    *   Define `payload` dict for `POST` to `/apis/ui/browse/category`.
+    *   Insert dynamic `category_id`, `pageNumber`.
+    *   Set `pageSize` (e.g., 36).
+    *   Include other required static fields (`sortType`, `location`, `url`, `formatObject`, `categoryVersion`, etc.).
+5.  **Construct POST Headers:**
+    *   Define `headers` dict including `User-Agent`, `Content-Type: application/json;charset=UTF-8`, `Origin`, `Referer`.
+6.  **Make POST Request & Handle Errors:**
+    *   Use `requests.post(url, headers=headers, json=payload, timeout=30)`.
+    *   Wrap in `try...except` for network errors, check status code (`raise_for_status()`).
+    *   Handle JSON decoding errors. Log errors clearly.
+7.  **Process Response & Check Pagination:**
+    *   Parse JSON: `data = response.json()`.
+    *   Get product bundles: `bundles = data.get('Bundles', [])`.
+    *   **Stop Condition:** If `bundles` is empty, `break` the pagination loop.
+    *   Log number of products found on the page.
+8.  **Implement Delay:**
+    *   **ESSENTIAL:** Add `time.sleep(X)` (start with `X` = 3-5 seconds) at the *end* of the pagination loop (inside the `while`, before `pageNumber += 1`). This delay must occur *after every request attempt*, successful or not.
+9.  **Increment Page Number:** `pageNumber += 1`.
+
+## 5. Phase 4: Data Extraction and Parsing (Per Product)
+
+1.  **Iterate Through Products:**
+    *   Inside pagination loop: `for bundle in bundles: for product in bundle.get('Products', []):`
+2.  **Extract Basic Fields:**
+    *   Safely get required fields (`Stockcode`, `DisplayName`, `Brand`, `Price`, `CupString`, `PackageSize`) using `product.get('FieldName', None)`.
+3.  **Implement `parse_nutrition` Function:**
+    *   Input: `nutrition_string` from `product.get('AdditionalAttributes', {}).get('nutritionalinformation')`.
+    *   Output: A flat dictionary mapping cleaned nutrient names to values (e.g., `{'Energy_kJ_per_100g': 'value', ...}`).
+    *   Inside:
+        *   Handle `None` or empty input string (return `{}`).
+        *   `try...except json.JSONDecodeError`: Parse the string via `json.loads()`.
+        *   Access `Attributes` list.
+        *   Loop: Extract raw `Name` and `Value`.
+        *   **Clean Name:** Create consistent, file-system/column-friendly names (e.g., replace spaces/slashes with underscores, remove suffixes, standardize units like `_g_`, `_mg_`). Example: `"Energy kJ Quantity Per 100g - Total - NIP"` -> `"Energy_kJ_per_100g"`.
+        *   Store `cleaned_name: Value` in the output dict.
+        *   Handle parsing errors by returning `{}`.
+    *   Call `parsed_nutrition = parse_nutrition(nutrition_string)`.
+4.  **Combine Data for Row:**
+    *   Create `product_row = {}`.
+    *   Add basic fields: `product_row['Stockcode'] = stockcode`, etc.
+    *   Add category context: `product_row['ScrapedCategoryID'] = category_id`, `product_row['ScrapedCategoryName'] = category_name`, `product_row['ScrapedCategoryParentID'] = category_parent_id`, `product_row['ScrapedCategoryLevel'] = category_level`.
+    *   Merge nutrition data: `product_row.update(parsed_nutrition)`.
+    *   Append to master list: `all_products_data.append(product_row)`.
+
+## 6. Phase 5: Data Storage (Structured Output)
+
+1.  **Convert to DataFrame:** After the main category loop finishes:
+    ```python
+    import pandas as pd
+    df = pd.DataFrame(all_products_data)
+    ```
+2.  **Clean & Structure:**
+    *   Define a list of desired final column names in the preferred order.
+    *   Reindex DataFrame to ensure consistent columns: `df = df.reindex(columns=desired_column_order)`. This handles cases where some products might lack certain nutrition fields, filling with `NaN`.
+    *   Handle `NaN` values if needed (e.g., `df.fillna('', inplace=True)` to replace with empty strings, or leave as `NaN`).
+3.  **Save to CSV:**
+    ```python
+    output_file = 'output/woolworths_products_nutrition.csv'
+    df.to_csv(output_file, index=False, encoding='utf-8')
+    print(f"Data saved to {output_file}")
+    ```
+4.  **(Optional) Incremental Saving:** For long runs, save data inside the category loop (e.g., after each category completes) by appending to the CSV or saving separate files. Use `mode='a', header=not os.path.exists(output_file)` for appending with pandas.
+
+## 7. Phase 6: Refinement & Testing
+
+1.  **Add Logging:** Use `logging` module for detailed progress/error info (script start/end, category/page progress, errors, counts, save events).
+2.  **Initial Test Run:** Test on ONE small category ID first to verify payload, headers, data extraction, and nutrition parsing. Check the output CSV structure.
+3.  **Rate Limit Tuning:** Strictly monitor runs. Increase `time.sleep()` duration immediately if any rate-limiting errors (429, 5xx) occur. Do not decrease delays aggressively.
+4.  **Error Handling:** Test error conditions (e.g., disconnect network briefly, test with invalid category ID). Ensure script logs errors and attempts to continue where feasible.
+5.  **Parameterization:** Place configuration (API URLs, `pageSize`, delay seconds, output file path) in variables at the script's start.
