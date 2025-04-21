@@ -250,11 +250,23 @@ function renderVisualization(container, products, xField, yField, sizeField, fie
     size = Math.max(minSize, Math.min(maxSize, size));
     const dot = document.createElement('div');
     dot.className = 'matrix-dot';
-    dot.style.left = (x-size/2) + 'px';
-    dot.style.top = (y-size/2) + 'px';
-    dot.style.width = dot.style.height = size + 'px';
+    dot.style.left = `${x}px`;
+    dot.style.top = `${y}px`;
+    dot.style.width = `${size}px`;
+    dot.style.height = `${size}px`;
     dot.title = prod.ProductName;
-    dot.onmouseenter = e => {
+    // Add click to open Woolworths product link
+    dot.onclick = (e) => {
+      e.stopPropagation();
+      let url = prod.WoolworthsUrl;
+      if (!url && prod.Stockcode) {
+        url = `https://www.woolworths.com.au/shop/productdetails/${prod.Stockcode}`;
+      }
+      if (url) {
+        window.open(url, '_blank', 'noopener');
+      }
+    };
+    dot.onmouseenter = () => {
       tooltip.innerHTML = `<b>${prod.ProductName}</b><br>${fieldMeta[xField]?.label || xField}: ${prod[xField] || 0}<br>${fieldMeta[yField]?.label || yField}: ${prod[yField] || 0}<br>${fieldMeta[sizeField]?.label || sizeField}: ${prod[sizeField] || 0}`;
       tooltip.style.display = 'block';
       const matrixRect = matrix.getBoundingClientRect();
